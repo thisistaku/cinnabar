@@ -45,8 +45,9 @@ pub use display::{
 };
 pub(crate) use icons::item_icon_keys;
 pub use nbt_edit::{
-    ItemAnvilData, ItemNbtEdit, book_init_extra, book_needs_init, edit_item_extra, item_anvil_data,
-    item_custom_name, item_filtered_custom_name, item_has_trim, item_repair_cost,
+    ItemAnvilData, ItemNbtEdit, apply_banner_to_shield, book_init_extra, book_needs_init,
+    edit_item_extra, item_anvil_data, item_custom_name, item_filtered_custom_name, item_has_trim,
+    item_repair_cost,
 };
 pub use shooter::ItemShooter;
 pub use user_data::{ItemBlockList, item_block_list, item_user_data_equal};
@@ -538,8 +539,6 @@ pub enum ItemPacketError {
     TooManyRegistryEntries { count: usize, max: usize },
     #[error("item identifier has {bytes} UTF-8 bytes, exceeding {max}")]
     ItemIdentifierTooLong { bytes: usize, max: usize },
-    #[error("item registry contains duplicate network ID")]
-    DuplicateRegistryEntry,
     #[error("item network ID {0} is invalid")]
     InvalidItemNetworkId(i32),
     #[error("non-empty item network ID has an empty stack count")]
@@ -720,6 +719,8 @@ fn validate_registry_nbt(nbt: &wire::NetworkNbt) -> Result<(), ItemPacketError> 
     Ok(())
 }
 
+/// Normalizes a server item registry. Repeated entries for one network ID merge
+/// when they describe the same item; otherwise the later entry keeps the ID.
 pub(crate) fn normalize_item_registry(
     packet: ItemRegistryPacket,
 ) -> Result<ItemRegistryEvent, ItemPacketError> {
@@ -731,6 +732,7 @@ pub(crate) fn normalize_item_registry(
     }
     let mut network_ids = HashMap::with_capacity(packet.item_data.len());
     let mut entries = Vec::with_capacity(packet.item_data.len());
+    let mut reassigned_ids = 0usize;
     for item in packet.item_data {
         if item.item_name.len() > MAX_ACTION_IDENTIFIER_BYTES {
             return Err(ItemPacketError::ItemIdentifierTooLong {
@@ -780,15 +782,23 @@ pub(crate) fn normalize_item_registry(
                 || (!current.canonical_empty_component_data
                     && !entry.canonical_empty_component_data)
             {
-                return Err(ItemPacketError::DuplicateRegistryEntry);
-            }
-            if current.canonical_empty_component_data {
+                // Bedrock maps IDs in packet order, so a later entry takes
+                // over an ID that an earlier entry named.
+                *current = entry;
+                reassigned_ids += 1;
+            } else if current.canonical_empty_component_data {
                 *current = entry;
             }
         } else {
             network_ids.insert(network_id, entries.len());
             entries.push(entry);
         }
+    }
+    if reassigned_ids > 0 {
+        tracing::warn!(
+            reassigned_ids,
+            "item registry repeats network IDs for different items; the later entries keep them"
+        );
     }
     Ok(ItemRegistryEvent {
         entries: Arc::from(entries),

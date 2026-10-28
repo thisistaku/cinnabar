@@ -15,6 +15,11 @@ mod contributors;
 mod cube_layout;
 pub mod lighting;
 pub mod liquid;
+mod overlays;
+pub use overlays::{
+    CellOverlay, MODEL_TURN_X_MASK, MODEL_TURN_X_SHIFT, MODEL_TURN_Y_MASK, overlay_model_turn,
+    turn_model_position,
+};
 mod palette_bits;
 mod publication;
 mod render_settings;
@@ -54,7 +59,7 @@ pub use liquid::{CameraMedium, LiquidLevel, sample_camera_medium};
 pub use publication::{CHUNK_PUBLICATION_ORIGIN_BYTES, chunk_publication_byte_len};
 pub use types::{
     ChunkMesh, ChunkMeshStreamError, ChunkMeshStreams, DiagnosticGeometryCount,
-    DiagnosticGeometrySummary, Face, FaceConnectivity, MAX_DIAGNOSTIC_IDENTITIES_PER_MESH,
-    MODEL_REF_FLAG_RANDOM_OFFSET, Neighbourhood, PackedLiquidQuad, PackedModelDrawRef,
-    PackedModelRef, PackedQuad, PackedQuadLighting,
+    DiagnosticGeometrySummary, Face, FaceConnectivity, LIGHT_SAMPLE_SHADE_FACE_SHIFT,
+    MAX_DIAGNOSTIC_IDENTITIES_PER_MESH, MODEL_REF_FLAG_RANDOM_OFFSET, Neighbourhood,
+    PackedLiquidQuad, PackedModelDrawRef, PackedModelRef, PackedQuad, PackedQuadLighting,
 };

@@ -47,17 +47,23 @@ impl InventoryCache {
             name_generation: runtime.item_name_generation(),
             base_lang: runtime.lang_catalog.clone(),
             active_lang: runtime.active_lang.clone(),
-            server_lang: runtime.server_lang.clone(),
-            items: runtime.session_items.clone(),
+            server_lang: runtime.session.server_lang.clone(),
+            items: runtime.session.session_items.clone(),
             recipes: player.inventory.crafting_catalog_snapshot(),
             crafting_revision: player.inventory.crafting_revision(),
         };
         let refresh = next.refresh(self.sources.as_ref());
         self.sources = Some(next);
+        if refresh != ProjectionRefresh::default() {
+            presentation
+                .inventory_preparation_revision
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        }
         self.projections.capture(
             ProjectionInput {
                 ledger: runtime.inventory_ledger(player),
-                inventory_open: runtime.inventory_open(),
+                inventory_open: runtime.inventory_open()
+                    || presentation.inventory_inputs_needed(player, runtime),
                 refresh,
                 animation: ProjectionAnimation {
                     player: frames.0,

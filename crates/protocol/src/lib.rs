@@ -106,7 +106,7 @@ pub use interaction::{
     HeldItemRequest, ItemUseHand, ItemUseTrigger, PredictedSlotChange, SwingSource,
     click_air_packet, click_block_packet, click_block_transaction_packet,
     creative_destroy_block_packet, deny_destroy_block_packet, destroy_block_packet,
-    entity_hover_packet, is_aim_assist_rotation_action, release_item_packet,
+    entity_hover_packet, is_actor_attack, is_aim_assist_rotation_action, release_item_packet,
     start_item_use_on_packet, stop_item_use_on_packet, stop_riding_packet, stop_sleeping_packet,
     swing_arm_packet, use_actor_packet, use_item_as_attack_packet, writable_book_init_change,
 };
@@ -114,10 +114,10 @@ pub use inventory::recipes::{
     BrewingItem, BrewingMix, BrewingMixItem, BrewingRecipe, MAX_RECIPE_INGREDIENTS, MultiRecipe,
     RECIPE_ANY_AUX, RECIPE_OWNED_BYTES, RecipeCatalog, RecipeDefinition, RecipeHandle,
     RecipeIdentity, RecipeIdentityHandle, RecipeIngredient, RecipeIngredientView, RecipeOutput,
-    RecipeUnlockOperation, RecipeUnlockState, RecipeUnlockUpdate, RecipeUnlockingContext,
-    RecipeUpdate, ScreenIngredient, ScreenRecipe, ScreenRecipeKind, ScreenRecipes,
-    decode_recipe_unlocks, decode_recipe_update, empty_recipe_extra, recipe_binding_supported,
-    vanilla_tag_contains,
+    RecipeOutputData, RecipeUnlockOperation, RecipeUnlockState, RecipeUnlockUpdate,
+    RecipeUnlockingContext, RecipeUpdate, ScreenIngredient, ScreenRecipe, ScreenRecipeKind,
+    ScreenRecipes, decode_recipe_unlocks, decode_recipe_update, empty_recipe_extra,
+    recipe_binding_supported, vanilla_tag_contains,
 };
 pub use inventory::{
     ARMOR_SLOTS, ARMOR_WINDOW_ID, AutoCraftIngredient, CONTAINER_NAME_CREATED_OUTPUT,
@@ -183,15 +183,16 @@ pub use item::{
     ItemRegistryEntry, ItemRegistryEvent, ItemRegistryVersion, ItemShooter, ItemStackFacts,
     ItemStackFactsCache, ItemUseCooldown, KineticWeaponTiming, MAX_ACTION_IDENTIFIER_BYTES,
     MAX_ANIMATE_ENTITY_IDS, MAX_ANIMATION_IDENTIFIER_BYTES, MAX_BOOK_PAGES, MAX_ITEM_EXTRA_BYTES,
-    MAX_ITEM_REGISTRY_ENTRIES, NetworkItemStack, book_init_extra, book_needs_init, edit_item_extra,
-    held_items_match, item_anvil_data, item_banner_patterns, item_banner_type, item_block_list,
-    item_book, item_bundle_id, item_charged_projectile, item_custom_color, item_custom_name,
-    item_display, item_enchantment_level, item_enchantment_level_value, item_enchantment_mask,
-    item_extra_damage, item_extra_damage_integer, item_extra_damage_value, item_extra_lock,
-    item_extra_slot_locked, item_extra_unbreakable, item_filtered_custom_name,
-    item_has_enchantment_list, item_has_trim, item_id_aux, item_map_id, item_repair_cost,
-    item_stack_damage, item_use_progress_packet, item_user_data_equal, offhand_equipment_packet,
-    select_hotbar_slot_packet, vanilla_item_registry,
+    MAX_ITEM_REGISTRY_ENTRIES, NetworkItemStack, apply_banner_to_shield, book_init_extra,
+    book_needs_init, edit_item_extra, held_items_match, item_anvil_data, item_banner_patterns,
+    item_banner_type, item_block_list, item_book, item_bundle_id, item_charged_projectile,
+    item_custom_color, item_custom_name, item_display, item_enchantment_level,
+    item_enchantment_level_value, item_enchantment_mask, item_extra_damage,
+    item_extra_damage_integer, item_extra_damage_value, item_extra_lock, item_extra_slot_locked,
+    item_extra_unbreakable, item_filtered_custom_name, item_has_enchantment_list, item_has_trim,
+    item_id_aux, item_map_id, item_repair_cost, item_stack_damage, item_use_progress_packet,
+    item_user_data_equal, offhand_equipment_packet, select_hotbar_slot_packet,
+    vanilla_item_registry,
 };
 pub use item_capacity::{ITEM_DEFAULT_MAX_STACK_SIZE, vanilla_item_capacity};
 pub use respawn::{respawn_ready_packet, respawn_request_packet};
@@ -204,12 +205,12 @@ pub use login::{
     WRITE_FAILURE_DRAIN, WebSessionReader, login_memory_tier, network_stack_latency_reply,
 };
 pub use movement::{
-    BlockAction, BlockActionKind, BlockActions, BlockActionsFull, BlockItemInteraction,
-    InteractionEncodeError, MAX_BLOCK_ACTIONS_PER_INPUT, MovementPredictionSync,
-    PlayerAuthInputError, PlayerAuthInputInteractions, PlayerAuthInputSnapshot,
-    PlayerAuthInputTraceSample, PlayerInputFlags, PlayerInputMode, PredictedVehicleInput,
-    client_movement_prediction_sync, player_auth_input, player_auth_input_trace_sample,
-    player_auth_input_with_interactions, player_auth_input_with_mining_request,
+    BlockAction, BlockActionKind, BlockActions, BlockItemInteraction, InteractionEncodeError,
+    MovementPredictionSync, PlayerAuthInputError, PlayerAuthInputInteractions,
+    PlayerAuthInputSnapshot, PlayerAuthInputTraceSample, PlayerInputFlags, PlayerInputMode,
+    PredictedVehicleInput, client_movement_prediction_sync, player_auth_input,
+    player_auth_input_trace_sample, player_auth_input_with_interactions,
+    player_auth_input_with_mining_request,
 };
 pub use packet::{Packet, PacketKind};
 pub use particle::{
